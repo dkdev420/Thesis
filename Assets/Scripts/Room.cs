@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Game : MonoBehaviour
+public class Room : MonoBehaviour
 {
 	void Start ()
-    {
+	{
 		
 	}
 	
 	void Update ()
-    {
+	{
 		
 	}
 }
