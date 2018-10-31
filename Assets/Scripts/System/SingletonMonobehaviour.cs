@@ -2,8 +2,8 @@
 
 public class SingletonMonobehaviour<T> : MonoBehaviour where T : SingletonMonobehaviour<T>
 {
-    private T instance = default(T);
-    public T Instance { get { return instance; } }
+    private static T instance = default(T);
+    public static T Instance { get { return instance; } }
 
     public bool dontDestroyOnLoad = false;
 

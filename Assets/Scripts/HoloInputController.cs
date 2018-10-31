@@ -5,151 +5,168 @@ using UnityEngine;
 using UnityEngine.XR.WSA.Input;
 using UnityEngine.Windows.Speech;
 
-public class HoloInputController : SingletonMonobehaviour<HoloInputController>
+namespace Thesis
 {
-    public GameObject cursorParent;
-
-    public event System.Action<InteractionSourcePressedEventArgs> InteractionSourcePressed;
-    public event System.Action<InteractionSourceReleasedEventArgs> InteractionSourceReleased;
-    public event System.Action<InteractionSourceDetectedEventArgs> InteractionSourceDetected;
-    public event System.Action<InteractionSourceLostEventArgs> InteractionSourceLost;
-    public event System.Action<InteractionSourceUpdatedEventArgs> InteractionSourceUpdated;
-
-    private KeywordRecognizer keywordRecognizer;
-    private Dictionary<string, System.Action> keywords = new Dictionary<string, System.Action>();
-
-    void Start ()
+    public class HoloInputController : SingletonMonobehaviour<HoloInputController>
     {
-        InteractionManager.InteractionSourcePressed += InteractionManager_InteractionSourcePressed;
-        InteractionManager.InteractionSourceReleased += InteractionManager_InteractionSourceReleased;
-        InteractionManager.InteractionSourceDetected += InteractionManager_InteractionSourceDetected;
-        InteractionManager.InteractionSourceLost += InteractionManager_InteractionSourceLost;
-        InteractionManager.InteractionSourceUpdated += InteractionManager_InteractionSourceUpdated;
+        public GameObject cursor;
 
-        keywords.Add("select", SelectInteractable);
-        AddKeywords(new Dictionary<string, System.Action>()
+        public event System.Action<InteractionSourcePressedEventArgs> InteractionSourcePressed;
+        public event System.Action<InteractionSourceReleasedEventArgs> InteractionSourceReleased;
+        public event System.Action<InteractionSourceDetectedEventArgs> InteractionSourceDetected;
+        public event System.Action<InteractionSourceLostEventArgs> InteractionSourceLost;
+        public event System.Action<InteractionSourceUpdatedEventArgs> InteractionSourceUpdated;
+
+        public event System.Action<TargetAcquiredArgs> OnTargetAcquired;
+        public event System.Action<TargetLostArgs> OnTargetLost;
+        public event System.Action<NoTargetArgs> OnNoTarget;
+
+        public event System.Action<RaycastHit> OnHit;
+
+        private KeywordRecognizer keywordRecognizer;
+        private Dictionary<string, System.Action> keywords = new Dictionary<string, System.Action>();
+
+        void Start()
         {
-            { "test" , () => { Debug.Log("test keyword recognized"); } }
-        });
-    }
+            InteractionManager.InteractionSourcePressed += InteractionManager_InteractionSourcePressed;
+            InteractionManager.InteractionSourceReleased += InteractionManager_InteractionSourceReleased;
+            InteractionManager.InteractionSourceDetected += InteractionManager_InteractionSourceDetected;
+            InteractionManager.InteractionSourceLost += InteractionManager_InteractionSourceLost;
+            InteractionManager.InteractionSourceUpdated += InteractionManager_InteractionSourceUpdated;
 
-    void Update()
-    {
-        UpdateGaze();
-    }
+            keywords.Add("select", SelectInteractable);
+            InitKeywordRecognizer();
+        }
 
-    private void InteractionManager_InteractionSourcePressed(InteractionSourcePressedEventArgs obj)
-    {
-        SelectInteractable();
-        if (InteractionSourcePressed != null) InteractionSourcePressed(obj);
-    }
-
-    private void InteractionManager_InteractionSourceReleased(InteractionSourceReleasedEventArgs obj)
-    {
-        if (InteractionSourceReleased != null) InteractionSourceReleased(obj);
-    }
-
-    private void InteractionManager_InteractionSourceDetected(InteractionSourceDetectedEventArgs obj)
-    {
-        if (InteractionSourceDetected != null) InteractionSourceDetected(obj);
-    }
-
-    private void InteractionManager_InteractionSourceLost(InteractionSourceLostEventArgs obj)
-    {
-        if (InteractionSourceLost != null) InteractionSourceLost(obj);
-    }
-
-    private void InteractionManager_InteractionSourceUpdated(InteractionSourceUpdatedEventArgs obj)
-    {
-        if (InteractionSourceUpdated != null) InteractionSourceUpdated(obj);
-    }
-
-    private Interactable current = null;
-    void UpdateGaze()
-    {
-        RaycastHit hitInfo;
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hitInfo, 20.0f, Physics.DefaultRaycastLayers))
+        void Update()
         {
-            var o = hitInfo.collider.gameObject.GetComponent<Interactable>();
-            if (o != null)               
+            UpdateGaze();
+        }
+
+        private void InteractionManager_InteractionSourcePressed(InteractionSourcePressedEventArgs obj)
+        {
+            SelectInteractable();
+            if (InteractionSourcePressed != null) InteractionSourcePressed(obj);
+        }
+
+        private void InteractionManager_InteractionSourceReleased(InteractionSourceReleasedEventArgs obj)
+        {
+            if (InteractionSourceReleased != null) InteractionSourceReleased(obj);
+        }
+
+        private void InteractionManager_InteractionSourceDetected(InteractionSourceDetectedEventArgs obj)
+        {
+            if (InteractionSourceDetected != null) InteractionSourceDetected(obj);
+        }
+
+        private void InteractionManager_InteractionSourceLost(InteractionSourceLostEventArgs obj)
+        {
+            if (InteractionSourceLost != null) InteractionSourceLost(obj);
+        }
+
+        private void InteractionManager_InteractionSourceUpdated(InteractionSourceUpdatedEventArgs obj)
+        {
+            if (InteractionSourceUpdated != null) InteractionSourceUpdated(obj);
+        }
+
+        private Interactable current = null;
+        void UpdateGaze()
+        {
+            RaycastHit hitInfo;
+            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hitInfo, 20.0f, Physics.DefaultRaycastLayers))
             {
-                if(current != o)
+                var o = hitInfo.collider.gameObject.GetComponent<Interactable>();
+                if (o != null)
                 {
-                    current = o;
-                    if (current.onFocus != null) current.onFocus.Invoke();
+                    if (current != o)
+                    {
+                        current = o;
+                        if (current.onFocus != null) current.onFocus.Invoke();
+                        if (OnTargetAcquired != null) OnTargetAcquired(new TargetAcquiredArgs() { target = current.gameObject, hitInfo = hitInfo });
+                    }
                 }
+                if (OnHit != null) OnHit(hitInfo);
             }
-            if (cursorParent)
+            else if (current)
             {
-                cursorParent.transform.position = hitInfo.point;
-                cursorParent.transform.forward = hitInfo.normal;
+                if (current.outFocus != null) current.outFocus.Invoke();
+                if (OnTargetLost != null) OnTargetLost(new TargetLostArgs() { target = current.gameObject });
+                current = null;
+            }
+            else
+            {
+                if (OnNoTarget != null) OnNoTarget(new NoTargetArgs() { });
             }
         }
-        else if(current)
+
+        void SelectInteractable()
         {
-            if (current.outFocus != null) current.outFocus.Invoke();
-            if (cursorParent) cursorParent.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 20.0f;
-            current = null;
+            if (current && current.selected != null) current.selected.Invoke();
         }
-        else
+
+        public void AddKeyword(string keyword, System.Action action)
         {
-            if (cursorParent) cursorParent.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 20.0f;
+            if (keyword.ToLower() == "select") throw new System.Exception("Can't override the keyword \"select\"");
+            keywords.Add(keyword, action);
+            InitKeywordRecognizer();
         }
-    }
 
-    void SelectInteractable()
-    {
-        if (current && current.selected != null) current.selected.Invoke();
-    }
-
-    public void AddKeyword(string keyword, System.Action action)
-    {
-        if (keyword.ToLower() == "select") throw new System.Exception("Can't override the keyword \"select\"");
-        keywords.Add(keyword, action);
-        InitKeywordRecognizer();
-    }
-
-    public void AddKeywords(Dictionary<string, System.Action> kws)
-    {
-        foreach(var k in kws)
+        public void AddKeywords(Dictionary<string, System.Action> kws)
         {
-            if (k.Key.ToLower() == "select") throw new System.Exception("Can't override the keyword \"select\"");
-            keywords.Add(k.Key, k.Value);
+            foreach (var k in kws)
+            {
+                if (k.Key.ToLower() == "select") throw new System.Exception("Can't override the keyword \"select\"");
+                keywords.Add(k.Key, k.Value);
+            }
+            InitKeywordRecognizer();
         }
-        InitKeywordRecognizer();
-    }
 
-    public void RemoveKeyword(string keyword)
-    {
-        keywords.Remove(keyword);
-        InitKeywordRecognizer();
-    }
-
-    void InitKeywordRecognizer()
-    {
-        if(keywordRecognizer != null)
+        public void RemoveKeyword(string keyword)
         {
-            if (keywordRecognizer.IsRunning) keywordRecognizer.Stop();
-            keywordRecognizer.Dispose();
+            keywords.Remove(keyword);
+            InitKeywordRecognizer();
         }
-        keywordRecognizer = new KeywordRecognizer(keywords.Keys.ToArray());
-        keywordRecognizer.OnPhraseRecognized += KeywordRecognizer_OnPhraseRecognized;
-        keywordRecognizer.Start();
+
+        void InitKeywordRecognizer()
+        {
+            if (keywordRecognizer != null)
+            {
+                if (keywordRecognizer.IsRunning) keywordRecognizer.Stop();
+                keywordRecognizer.Dispose();
+            }
+            keywordRecognizer = new KeywordRecognizer(keywords.Keys.ToArray());
+            keywordRecognizer.OnPhraseRecognized += KeywordRecognizer_OnPhraseRecognized;
+            keywordRecognizer.Start();
+        }
+
+        private void KeywordRecognizer_OnPhraseRecognized(PhraseRecognizedEventArgs args)
+        {
+            System.Action keywordAction;
+            if (keywords.TryGetValue(args.text, out keywordAction)) keywordAction.Invoke();
+        }
+
+        private void OnDestroy()
+        {
+            InteractionManager.InteractionSourcePressed -= InteractionManager_InteractionSourcePressed;
+            InteractionManager.InteractionSourceReleased -= InteractionManager_InteractionSourceReleased;
+            InteractionManager.InteractionSourceDetected -= InteractionManager_InteractionSourceDetected;
+            InteractionManager.InteractionSourceLost -= InteractionManager_InteractionSourceLost;
+            InteractionManager.InteractionSourceUpdated -= InteractionManager_InteractionSourceUpdated;
+        }
     }
 
-    private void KeywordRecognizer_OnPhraseRecognized(PhraseRecognizedEventArgs args)
+    public class TargetAcquiredArgs
     {
-        System.Action keywordAction;
-        if (keywords.TryGetValue(args.text, out keywordAction)) keywordAction.Invoke();
+        public GameObject target;
+        public RaycastHit hitInfo;
     }
 
-    private void OnDestroy()
+    public class TargetLostArgs
     {
-        InteractionManager.InteractionSourcePressed -= InteractionManager_InteractionSourcePressed;
-        InteractionManager.InteractionSourceReleased -= InteractionManager_InteractionSourceReleased;
-        InteractionManager.InteractionSourceDetected -= InteractionManager_InteractionSourceDetected;
-        InteractionManager.InteractionSourceLost -= InteractionManager_InteractionSourceLost;
-        InteractionManager.InteractionSourceUpdated -= InteractionManager_InteractionSourceUpdated;
+        public GameObject target;
+    }
+
+    public class NoTargetArgs
+    {
     }
 }
-
