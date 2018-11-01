@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Thesis
 {
-    public class Game : MonoBehaviour
+    public class MenuManager : MonoBehaviour
     {
         void Start()
         {
@@ -14,6 +15,11 @@ namespace Thesis
         void Update()
         {
 
+        }
+
+        public void Quit()
+        {
+            Application.Quit();
         }
     }
 }

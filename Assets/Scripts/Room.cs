@@ -7,8 +7,11 @@ namespace Thesis
 {
     public class Room : SingletonMonobehaviour<Room>
     {
-
         const int MAX_RESULTS = 512;
+
+        public float minArea = 30.0f;
+        public float minHorizontalArea = 20.0f;
+        public float minWallArea = 5.0f;
 
         SpatialUnderstandingDllTopology.TopologyResult[] resultsTopology = new SpatialUnderstandingDllTopology.TopologyResult[MAX_RESULTS];
 
@@ -21,11 +24,12 @@ namespace Thesis
 
         private void Instance_OnScanDone()
         {
+            SpatialUnderstanding.Instance.UnderstandingDLL.GetStaticPlayspaceStats();
             Debug.Log("scan done..");
             foreach(var t in resultsTopology)
             {
-                Debug.Log(t.position);
-                Debug.DrawLine(t.position, t.position + t.normal * 2f, Random.ColorHSV());
+                //Debug.Log(t.position);
+                //Debug.DrawLine(t.position, t.position + t.normal * 2f, Random.ColorHSV());
             }
         }
 

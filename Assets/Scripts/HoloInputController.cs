@@ -70,6 +70,8 @@ namespace Thesis
         }
 
         private Interactable current = null;
+        public Interactable Current { get { return current; } }
+
         void UpdateGaze()
         {
             RaycastHit hitInfo;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Thesis
 {
-    public class Cursor : MonoBehaviour
+    public class Cursor : SingletonMonobehaviour<Cursor>
     {
         void Start()
         {

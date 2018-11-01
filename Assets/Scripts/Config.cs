@@ -1,13 +1,16 @@
 ﻿using UnityEngine.XR;
 
-public class Config : SingletonMonobehaviour<Config>
+namespace Thesis
 {
-    public TrackingSpaceType trackingSpaceType;
-
-    private void Start() { UpdateConfig(); }
-
-    public void UpdateConfig()
+    public class Config : SingletonMonobehaviour<Config>
     {
-        XRDevice.SetTrackingSpaceType(trackingSpaceType);
+        public TrackingSpaceType trackingSpaceType;
+
+        private void Start() { UpdateConfig(); }
+
+        public void UpdateConfig()
+        {
+            XRDevice.SetTrackingSpaceType(trackingSpaceType);
+        }
     }
 }
