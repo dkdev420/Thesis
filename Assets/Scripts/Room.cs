@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using HoloToolkit.Unity;
+using HoloToolkit.Unity.SpatialMapping;
+using UnityEngine.AI;
 
 namespace Thesis
 {
@@ -13,24 +15,26 @@ namespace Thesis
         public float minHorizontalArea = 20.0f;
         public float minWallArea = 5.0f;
 
-        SpatialUnderstandingDllTopology.TopologyResult[] resultsTopology = new SpatialUnderstandingDllTopology.TopologyResult[MAX_RESULTS];
+        public NavMeshSurface navMeshSurface;
 
-        System.IntPtr resultTopologyPtr = default(System.IntPtr);
+        //SpatialUnderstandingDllTopology.TopologyResult[] resultsTopology = new SpatialUnderstandingDllTopology.TopologyResult[MAX_RESULTS];
+
+        //System.IntPtr resultTopologyPtr = default(System.IntPtr);
         void Start()
         {
-            resultTopologyPtr = SpatialUnderstanding.Instance.UnderstandingDLL.PinObject(resultsTopology);
+            //  resultTopologyPtr = SpatialUnderstanding.Instance.UnderstandingDLL.PinObject(resultsTopology);
             SpatialUnderstanding.Instance.OnScanDone += Instance_OnScanDone;
+            SpatialMappingManager.Instance.SurfaceObserver.SurfaceUpdated += SurfaceObserver_SurfaceUpdated;
+        }
+
+        private void SurfaceObserver_SurfaceUpdated(object sender, DataEventArgs<SpatialMappingSource.SurfaceUpdate> e)
+        {
+            if (navMeshSurface) navMeshSurface.BuildNavMesh();
         }
 
         private void Instance_OnScanDone()
         {
             SpatialUnderstanding.Instance.UnderstandingDLL.GetStaticPlayspaceStats();
-            Debug.Log("scan done..");
-            foreach(var t in resultsTopology)
-            {
-                //Debug.Log(t.position);
-                //Debug.DrawLine(t.position, t.position + t.normal * 2f, Random.ColorHSV());
-            }
         }
 
         void Update()
