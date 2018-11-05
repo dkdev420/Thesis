@@ -16,30 +16,24 @@ namespace Thesis
         public float minWallArea = 5.0f;
 
         public NavMeshSurface navMeshSurface;
-
-        //SpatialUnderstandingDllTopology.TopologyResult[] resultsTopology = new SpatialUnderstandingDllTopology.TopologyResult[MAX_RESULTS];
-
-        //System.IntPtr resultTopologyPtr = default(System.IntPtr);
         void Start()
         {
-            //  resultTopologyPtr = SpatialUnderstanding.Instance.UnderstandingDLL.PinObject(resultsTopology);
             SpatialUnderstanding.Instance.OnScanDone += Instance_OnScanDone;
             SpatialMappingManager.Instance.SurfaceObserver.SurfaceUpdated += SurfaceObserver_SurfaceUpdated;
         }
 
         private void SurfaceObserver_SurfaceUpdated(object sender, DataEventArgs<SpatialMappingSource.SurfaceUpdate> e)
         {
+            Debug.Log("Surface updated..");
+            BuildNavMesh();
+        }
+
+        private void Instance_OnScanDone() { }
+
+        [ContextMenu("Build NavMesh")]
+        public void BuildNavMesh()
+        {
             if (navMeshSurface) navMeshSurface.BuildNavMesh();
-        }
-
-        private void Instance_OnScanDone()
-        {
-            SpatialUnderstanding.Instance.UnderstandingDLL.GetStaticPlayspaceStats();
-        }
-
-        void Update()
-        {
-
         }
 
         [ContextMenu("Start")]
