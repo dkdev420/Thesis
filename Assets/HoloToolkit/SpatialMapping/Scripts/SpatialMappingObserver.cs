@@ -96,6 +96,7 @@ namespace HoloToolkit.Unity.SpatialMapping
         /// Our Surface Observer object for generating/updating Spatial Mapping data.
         /// </summary>
         private SurfaceObserver observer;
+        public SurfaceObserver Observer { get { return observer; } }
 
         /// <summary>
         /// A queue of surfaces that need their meshes created (or updated).
@@ -188,6 +189,7 @@ namespace HoloToolkit.Unity.SpatialMapping
                 }
             }
         }
+
 
         protected override void Awake()
         {
