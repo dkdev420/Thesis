@@ -41,7 +41,6 @@ namespace Thesis
         void UpdateGrabbedPosition()
         {
             grabbed.transform.position = Cursor.Instance.transform.position;
-            //grabbed.transform.up = Cursor.Instance.transform.up;
         }
     }
 }

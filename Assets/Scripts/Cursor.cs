@@ -13,11 +13,6 @@ namespace Thesis
             HoloInputController.Instance.OnNoTarget += Instance_OnNoTarget;
         }
 
-        void Update()
-        {
-
-        }
-
         private void Instance_OnTargetLost(TargetLostArgs obj)
         {
             transform.position = Camera.main.transform.position + Camera.main.transform.forward * 20.0f;

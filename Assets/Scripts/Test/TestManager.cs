@@ -10,27 +10,14 @@ namespace Thesis
 
         public GameObject character;
 
-        void Start()
+        [ContextMenu("Place character On Floor")]
+        public void PlaceCharacterOnFloor()
         {
-
-        }
-
-        void Update()
-        {
-
-        }
-
-        [ContextMenu("Place character")]
-        public void PlaceCharacter()
-        {
-            /*
-            StartCoroutine(Room.Instance.PlaceGameObject
+            Room.Instance.PlaceGameObject
             (
                 character,
                 SpatialUnderstandingDllObjectPlacement.ObjectPlacementDefinition.Create_OnFloor(Vector3.one * .05f)
-            ));
-            */
-            Room.Instance.PlaceObjectOnSittable(character);
+            );
             character.SetActive(true);
         }
     }

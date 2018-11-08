@@ -10,23 +10,28 @@ namespace Thesis
 {
     public class Room : SingletonMonobehaviour<Room>
     {
-        const int MAX_RESULTS = 512;
+        [SerializeField] string storedMeshFilename;
+        [SerializeField] CachedSpatialMapping cachedSpatialMapping;
 
-        public float minArea = 30.0f;
-        public float minHorizontalArea = 20.0f;
-        public float minWallArea = 5.0f;
+        public bool IsSolverInitialized { get; private set; }
 
         void Start()
         {
             SpatialUnderstanding.Instance.OnScanDone += Instance_OnScanDone;
-            //SpatialMappingManager.Instance.
             SpatialMappingManager.Instance.SurfaceObserver.SurfaceUpdated += SurfaceObserver_SurfaceUpdated;
-            //SpatialMappingManager.Instance.SurfaceObserver.Observer.Update(SurfaceObserver_OnSurfaceChanged);
-            SpatialUnderstanding.Instance.ScanStateChanged += Instance_ScanStateChanged;
         }
 
-        private void Instance_ScanStateChanged()
+        private void Update()
         {
+            if (SpatialUnderstanding.Instance.ScanState != SpatialUnderstanding.ScanStates.Done) return;
+            if (!IsSolverInitialized && SpatialUnderstanding.Instance.AllowSpatialUnderstanding) InitializeSolver();
+        }
+
+        public bool InitializeSolver()
+        {
+            if (IsSolverInitialized || !SpatialUnderstanding.Instance.AllowSpatialUnderstanding) return IsSolverInitialized;
+            if (SpatialUnderstandingDllObjectPlacement.Solver_Init() == 1) IsSolverInitialized = true;
+            return IsSolverInitialized;
         }
 
         bool navMeshReady;
@@ -42,9 +47,15 @@ namespace Thesis
             Debug.Log("Done..");
         }
 
-        public IEnumerator PlaceGameObject(GameObject g, SpatialUnderstandingDllObjectPlacement.ObjectPlacementDefinition placementDefinition, List<SpatialUnderstandingDllObjectPlacement.ObjectPlacementRule> placementRules = null, List<SpatialUnderstandingDllObjectPlacement.ObjectPlacementConstraint> placementConstraints = null)
+        public void PlaceGameObject(GameObject g, SpatialUnderstandingDllObjectPlacement.ObjectPlacementDefinition placementDefinition, List<SpatialUnderstandingDllObjectPlacement.ObjectPlacementRule> placementRules = null, List<SpatialUnderstandingDllObjectPlacement.ObjectPlacementConstraint> placementConstraints = null)
+        {
+            StartCoroutine(PlaceGameObjectCoro(g, placementDefinition, placementRules, placementConstraints));
+        }
+
+        IEnumerator PlaceGameObjectCoro(GameObject g, SpatialUnderstandingDllObjectPlacement.ObjectPlacementDefinition placementDefinition, List<SpatialUnderstandingDllObjectPlacement.ObjectPlacementRule> placementRules = null, List<SpatialUnderstandingDllObjectPlacement.ObjectPlacementConstraint> placementConstraints = null)
         {
             string name = g.name;
+            bool hasResults = false;
             var thread =
 #if UNITY_EDITOR || !UNITY_WSA
             new System.Threading.Thread
@@ -53,9 +64,8 @@ namespace Thesis
 #endif
             (() =>
             {
-                _PlaceGameObject(name, placementDefinition, placementRules, placementConstraints);
-            }
-            );
+                hasResults = _PlaceGameObject(name, placementDefinition, placementRules, placementConstraints);
+            });
 #if UNITY_EDITOR || !UNITY_WSA
             thread.Start()
 #endif
@@ -73,17 +83,18 @@ namespace Thesis
                 yield return null;
             }
 
-            //SpatialUnderstandingDllObjectPlacement.ObjectPlacementResult placementResult = SpatialUnderstanding.Instance.UnderstandingDLL.GetStaticObjectPlacementResult();
-            //g.transform.position = placementResult.Position;
-
+            if(hasResults)
+            {
+                SpatialUnderstandingDllObjectPlacement.ObjectPlacementResult placementResult = SpatialUnderstanding.Instance.UnderstandingDLL.GetStaticObjectPlacementResult();
+                g.transform.position = placementResult.Position;
+            }
         }
 
         private bool _PlaceGameObject(string name, SpatialUnderstandingDllObjectPlacement.ObjectPlacementDefinition placementDefinition, List<SpatialUnderstandingDllObjectPlacement.ObjectPlacementRule> placementRules = null, List<SpatialUnderstandingDllObjectPlacement.ObjectPlacementConstraint> placementConstraints = null)
         {
             SpatialUnderstandingDllTopology.TopologyResult[] resultsTopology = new SpatialUnderstandingDllTopology.TopologyResult[1];
             System.IntPtr resultsTopologyPtr = SpatialUnderstanding.Instance.UnderstandingDLL.PinObject(resultsTopology);
-
-            if
+            return
                 (
                     SpatialUnderstandingDllObjectPlacement.Solver_PlaceObject
                     (
@@ -95,59 +106,8 @@ namespace Thesis
                         ((placementConstraints != null) && (placementConstraints.Count > 0)) ? SpatialUnderstanding.Instance.UnderstandingDLL.PinObject(placementConstraints.ToArray()) : System.IntPtr.Zero,
                         SpatialUnderstanding.Instance.UnderstandingDLL.GetStaticObjectPlacementResultPtr()
                     ) > 0
-                )
-            {
-                return true;
-            }
-            return false;
+                );
         }
-
-        public void PlaceObjectOnFloor(GameObject g)
-        {
-            const int QueryResultMaxCount = 512;
-
-            SpatialUnderstandingDllTopology.TopologyResult[] _resultsTopology = new SpatialUnderstandingDllTopology.TopologyResult[QueryResultMaxCount];
-
-            var minLengthFloorSpace = 0.25f;
-            var minWidthFloorSpace = 0.25f;
-
-            var resultsTopologyPtr = SpatialUnderstanding.Instance.UnderstandingDLL.PinObject(_resultsTopology);
-            var locationCount = SpatialUnderstandingDllTopology.QueryTopology_FindPositionsOnFloor(minLengthFloorSpace, minWidthFloorSpace, _resultsTopology.Length, resultsTopologyPtr);
-
-            if (locationCount > 0)
-            {
-                g.transform.position = _resultsTopology[0].position;
-                Debug.Log("Placed the hologram");
-            }
-            else
-            {
-                Debug.Log("I can't found the enough space to place the hologram.");
-            }
-        }
-
-        public void PlaceObjectOnSittable(GameObject g)
-        {
-            const int QueryResultMaxCount = 512;
-
-            SpatialUnderstandingDllTopology.TopologyResult[] _resultsTopology = new SpatialUnderstandingDllTopology.TopologyResult[QueryResultMaxCount];
-
-            var minHeight = 0.3f;
-            var maxHeight = 1f;
-
-            var resultsTopologyPtr = SpatialUnderstanding.Instance.UnderstandingDLL.PinObject(_resultsTopology);
-            var locationCount = SpatialUnderstandingDllTopology.QueryTopology_FindPositionsSittable(minHeight, maxHeight, 0.5f, _resultsTopology.Length, resultsTopologyPtr);
-
-            if (locationCount > 0)
-            {
-                g.transform.position = _resultsTopology[0].position;
-                Debug.Log("Placed the hologram");
-            }
-            else
-            {
-                Debug.Log("I can't found the enough space to place the hologram.");
-            }
-        }
-
 
         public NavMeshSurface navMeshSurface;
         [ContextMenu("Build NavMesh")]
@@ -168,11 +128,40 @@ namespace Thesis
             SpatialUnderstanding.Instance.RequestFinishScan();
         }
 
+        [ContextMenu("SaveSpatialMeshes")]
+        public void SaveSpatialMeshes()
+        {
+            if(string.IsNullOrEmpty(storedMeshFilename))
+            {
+                Debug.LogError("Mesh filename cannot be empty");
+                return;
+            }
+            SpatialMappingManager.Instance.SurfaceObserver.SaveSpatialMeshes(storedMeshFilename);
+        }
+
+        [ContextMenu("LoadSpatialMeshes")]
+        public void LoadSpatialMeshes()
+        {
+            if (string.IsNullOrEmpty(storedMeshFilename))
+            {
+                Debug.Log("No mesh file specified.");
+                return;
+            }
+            try
+            {
+                SpatialMappingManager.Instance.SetSpatialMappingSource(cachedSpatialMapping);
+                cachedSpatialMapping.Load(MeshSaver.Load(storedMeshFilename));
+            }
+            catch
+            {
+                Debug.Log("Failed to load " + storedMeshFilename);
+            }
+        }
+
         private void OnDestroy()
         {
             SpatialUnderstanding.Instance.OnScanDone -= Instance_OnScanDone;
             SpatialMappingManager.Instance.SurfaceObserver.SurfaceUpdated -= SurfaceObserver_SurfaceUpdated;
-            SpatialUnderstanding.Instance.ScanStateChanged -= Instance_ScanStateChanged;
-        }
+         }
     }
 }

@@ -7,16 +7,6 @@ namespace Thesis
 {
     public class MenuManager : MonoBehaviour
     {
-        void Start()
-        {
-
-        }
-
-        void Update()
-        {
-
-        }
-
         public void Quit()
         {
             Application.Quit();
