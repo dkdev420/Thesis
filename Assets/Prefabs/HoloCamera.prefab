@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4268682370073738}
   - component: {fileID: 20877437308357284}
   - component: {fileID: 81540399852840100}
+  - component: {fileID: 114516789164999074}
   m_Layer: 0
   m_Name: HoloCamera
   m_TagString: MainCamera
@@ -88,3 +89,15 @@ AudioListener:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1965359313246830}
   m_Enabled: 1
+--- !u!114 &114516789164999074
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1965359313246830}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7f9cf1e8ef0fcf47a29d6ede83648a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eulers: {x: 0, y: 0, z: 0}

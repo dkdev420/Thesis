@@ -83,17 +83,16 @@ namespace Thesis
                 yield return null;
             }
 
-            if(hasResults)
+            if (hasResults)
             {
                 SpatialUnderstandingDllObjectPlacement.ObjectPlacementResult placementResult = SpatialUnderstanding.Instance.UnderstandingDLL.GetStaticObjectPlacementResult();
                 g.transform.position = placementResult.Position;
             }
+            else Debug.Log("No placements found");
         }
 
         private bool _PlaceGameObject(string name, SpatialUnderstandingDllObjectPlacement.ObjectPlacementDefinition placementDefinition, List<SpatialUnderstandingDllObjectPlacement.ObjectPlacementRule> placementRules = null, List<SpatialUnderstandingDllObjectPlacement.ObjectPlacementConstraint> placementConstraints = null)
         {
-            SpatialUnderstandingDllTopology.TopologyResult[] resultsTopology = new SpatialUnderstandingDllTopology.TopologyResult[1];
-            System.IntPtr resultsTopologyPtr = SpatialUnderstanding.Instance.UnderstandingDLL.PinObject(resultsTopology);
             return
                 (
                     SpatialUnderstandingDllObjectPlacement.Solver_PlaceObject
@@ -117,16 +116,10 @@ namespace Thesis
         }
 
         [ContextMenu("Start")]
-        public void StartScan()
-        {
-            SpatialUnderstanding.Instance.RequestBeginScanning();
-        }
+        public void StartScan() { SpatialUnderstanding.Instance.RequestBeginScanning(); }
 
         [ContextMenu("End")]
-        public void EndScan()
-        {
-            SpatialUnderstanding.Instance.RequestFinishScan();
-        }
+        public void EndScan() { SpatialUnderstanding.Instance.RequestFinishScan(); }
 
         [ContextMenu("SaveSpatialMeshes")]
         public void SaveSpatialMeshes()

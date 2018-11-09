@@ -6,6 +6,8 @@ namespace Thesis
 {
     public class Level : MonoBehaviour
     {
+        List<LevelEntity> levelEntities;
+
         void Start()
         {
 
