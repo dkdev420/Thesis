@@ -10,10 +10,42 @@ namespace Thesis
 {
     public class Room : SingletonMonobehaviour<Room>
     {
+        const int QueryResultMaxCount = 512;
+        const int DisplayResultMaxCount = 32;
+
+        [SerializeField] private float minAreaForComplete;
+        [SerializeField] private float minHorizAreaForComplete;
+        [SerializeField] private float minWallAreaForComplete;
         [SerializeField] string storedMeshFilename;
         [SerializeField] CachedSpatialMapping cachedSpatialMapping;
 
+        private SpatialUnderstandingDllTopology.TopologyResult[] resultsTopology = new SpatialUnderstandingDllTopology.TopologyResult[QueryResultMaxCount];
+
         public bool IsSolverInitialized { get; private set; }
+        public bool IsReady
+        {
+            get
+            {
+                return SpatialUnderstanding.Instance.ScanState == SpatialUnderstanding.ScanStates.Done
+                       && IsSolverInitialized;
+            }
+        }
+
+        public bool MinSurfaceReached
+        {
+            get
+            {
+                if ((SpatialUnderstanding.Instance.ScanState != SpatialUnderstanding.ScanStates.Scanning) || (!SpatialUnderstanding.Instance.AllowSpatialUnderstanding)) return false;
+
+                System.IntPtr statsPtr = SpatialUnderstanding.Instance.UnderstandingDLL.GetStaticPlayspaceStatsPtr();
+                if (SpatialUnderstandingDll.Imports.QueryPlayspaceStats(statsPtr) == 0) return false;
+                SpatialUnderstandingDll.Imports.PlayspaceStats stats = SpatialUnderstanding.Instance.UnderstandingDLL.GetStaticPlayspaceStats();
+
+                if ((stats.TotalSurfaceArea > minAreaForComplete) || (stats.HorizSurfaceArea > minHorizAreaForComplete) || (stats.WallSurfaceArea > minWallAreaForComplete)) return true;
+                return false;
+            }
+        }
+
 
         void Start()
         {
@@ -108,6 +140,30 @@ namespace Thesis
                 );
         }
 
+        [ContextMenu("Find Largest Floor")]
+        public void PlaceOnLargestFloor()
+        {
+            System.IntPtr resultsTopologyPtr = SpatialUnderstanding.Instance.UnderstandingDLL.PinObject(resultsTopology);
+            int locationCount = SpatialUnderstandingDllTopology.QueryTopology_FindLargestPositionsOnFloor(resultsTopology.Length, resultsTopologyPtr);
+
+            for(int i=0; i < locationCount; i++)
+            {
+                Debug.Log(resultsTopology[i].position);
+            }
+        }
+
+        [ContextMenu("Find Largest Floor")]
+        public void PlaceOnSittable()
+        {
+            System.IntPtr resultsTopologyPtr = SpatialUnderstanding.Instance.UnderstandingDLL.PinObject(resultsTopology);
+            int locationCount = SpatialUnderstandingDllTopology.QueryTopology_FindPositionsSittable(.4f, 1.5f, 1f, resultsTopology.Length, resultsTopologyPtr);
+
+            for (int i = 0; i < locationCount; i++)
+            {
+                Debug.Log(resultsTopology[i].position);
+            }
+        }
+
         public NavMeshSurface navMeshSurface;
         [ContextMenu("Build NavMesh")]
         public void BuildNavMesh()
@@ -115,11 +171,14 @@ namespace Thesis
             if (navMeshSurface) navMeshSurface.BuildNavMesh();
         }
 
-        [ContextMenu("Start")]
-        public void StartScan() { SpatialUnderstanding.Instance.RequestBeginScanning(); }
+        [ContextMenu("Start Mapping")]
+        public void StartMappingScan() { SpatialMappingManager.Instance.StartObserver(); }
 
-        [ContextMenu("End")]
-        public void EndScan() { SpatialUnderstanding.Instance.RequestFinishScan(); }
+        [ContextMenu("Start Understanding")]
+        public void StartUnderstandingScan() { SpatialUnderstanding.Instance.RequestBeginScanning(); }
+
+        [ContextMenu("Stop Understanding")]
+        public void EndUnderstandingScan() { SpatialUnderstanding.Instance.RequestFinishScan(); }
 
         [ContextMenu("SaveSpatialMeshes")]
         public void SaveSpatialMeshes()

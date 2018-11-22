@@ -195,6 +195,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 0
+  dummy: {fileID: 0}
   storedMeshFilename: test
   cachedSpatialMapping: {fileID: 114707814576907528}
   navMeshSurface: {fileID: 114402827733055560}
@@ -232,7 +233,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1220127786314718}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 13d883c0118351e4890753200e0ac916, type: 3}
   m_Name: 
@@ -320,7 +321,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PhysicsLayer: 31
   surfaceMaterial: {fileID: 2100000, guid: 6cec46d5b336e2a4b9b2e1d3e8e3754c, type: 2}
-  autoStartObserver: 0
+  autoStartObserver: 1
   drawVisualMeshes: 0
   castShadows: 0
 --- !u!362 &362602878741402980

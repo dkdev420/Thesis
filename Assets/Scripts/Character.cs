@@ -8,6 +8,8 @@ namespace Thesis
     [RequireComponent(typeof(NavMeshAgent))]
     public class Character : MonoBehaviour
     {
+        [SerializeField] Transform dummyFollow;
+
         NavMeshAgent agent;
         void Start()
         {
@@ -30,7 +32,8 @@ namespace Thesis
             }
             //--
 
-            agent.SetDestination(Cursor.Instance.transform.position);
+            if(dummyFollow) agent.SetDestination(dummyFollow.position);
+            else agent.SetDestination(Cursor.Instance.transform.position);
             RaycastHit hitInfo;
             if(Physics.Raycast(transform.position, -transform.up, out hitInfo))
             {

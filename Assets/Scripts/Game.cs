@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Thesis
 {
-    public class Game : MonoBehaviour
+    public class Game : SingletonMonobehaviour<Game>    
     {
         void Start()
         {
@@ -14,6 +14,6 @@ namespace Thesis
         void Update()
         {
 
-        }
+        }        
     }
 }
