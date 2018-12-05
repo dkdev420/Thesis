@@ -9,7 +9,7 @@ namespace Thesis
 {
     public class HoloInputController : SingletonMonobehaviour<HoloInputController>
     {
-        public GameObject cursor;
+        public float gazeDistanceFromCamera = 20f;
 
         public event System.Action<InteractionSourcePressedEventArgs> InteractionSourcePressed;
         public event System.Action<InteractionSourceReleasedEventArgs> InteractionSourceReleased;
@@ -75,7 +75,7 @@ namespace Thesis
         void UpdateGaze()
         {
             RaycastHit hitInfo;
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hitInfo, 20.0f, Physics.DefaultRaycastLayers))
+            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hitInfo, gazeDistanceFromCamera, Physics.DefaultRaycastLayers))
             {
                 var o = hitInfo.collider.gameObject.GetComponent<Interactable>();
                 if (o != null)

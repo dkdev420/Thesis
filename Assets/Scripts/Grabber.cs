@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Thesis
 {
-    public class Grabber : MonoBehaviour
+    public class Grabber : SingletonMonobehaviour<Grabber>
     {
-        public GameObject grabbed;
+        [SerializeField] private GameObject grabbed;
+        [SerializeField] MeshRenderer cursorRenderer;
 
-        public MeshRenderer cursorRenderer;
+        public event System.Action<GameObject> OnGrabbed;
+        public event System.Action<GameObject> OnReleased;
 
         void Start()
         {
@@ -19,18 +20,8 @@ namespace Thesis
 
         private void Instance_InteractionSourcePressed(UnityEngine.XR.WSA.Input.InteractionSourcePressedEventArgs obj)
         {
-            if (grabbed)
-            {
-                cursorRenderer.enabled = true;
-                grabbed.GetComponent<Collider>().enabled = true;
-                grabbed = null;
-            }
-            else
-            {
-                cursorRenderer.enabled = false;
-                grabbed = HoloInputController.Instance.Current.gameObject;
-                grabbed.GetComponent<Collider>().enabled = false;
-            }
+            if (grabbed && grabbedTime > .5f) Release();
+            else if(!(HoloInputController.Instance.Current.gameObject.GetComponent<Button3D>())) Grab();
         }
 
         void Update()
@@ -38,9 +29,50 @@ namespace Thesis
             UpdateGrabbedPosition();
         }
 
+        private float grabbedTime = 0f;
         void UpdateGrabbedPosition()
         {
-            grabbed.transform.position = Cursor.Instance.transform.position;
+            if (grabbed)
+            {
+                grabbedTime += Time.deltaTime;
+                grabbed.transform.position = Cursor.Instance.transform.position;
+            }
+            else grabbedTime = 0f;
         }
+
+        public void Grab(GameObject g = null)
+        {
+            grabbed = g ? g : HoloInputController.Instance.Current.gameObject;
+            if (!grabbed) return;
+            cursorRenderer.enabled = false;
+            var c = grabbed.GetComponent<Collider>();
+            var r = grabbed.GetComponent<Rigidbody>();
+            if (c) c.enabled = false;
+            if (r)
+            {
+                r.useGravity = false;
+                r.detectCollisions = false;
+            }
+            if(OnGrabbed != null) OnGrabbed(grabbed);
+        }
+
+        public void Release()
+        {
+            if (!grabbed) return;
+            Debug.Log("released..");
+            cursorRenderer.enabled = true;
+            GameObject released = grabbed;
+            var c = grabbed.GetComponent<Collider>();
+            var r = grabbed.GetComponent<Rigidbody>();
+            if (c) c.enabled = true;
+            if (r)
+            {
+                r.useGravity = true;
+                r.detectCollisions = true;
+            }
+            grabbed = null;
+            if (OnReleased != null) OnReleased(released);
+        }
+
     }
 }

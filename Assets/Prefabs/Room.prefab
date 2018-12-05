@@ -195,7 +195,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 0
-  dummy: {fileID: 0}
+  minAreaForComplete: 0
+  minHorizAreaForComplete: 0
+  minWallAreaForComplete: 0
   storedMeshFilename: test
   cachedSpatialMapping: {fileID: 114707814576907528}
   navMeshSurface: {fileID: 114402827733055560}

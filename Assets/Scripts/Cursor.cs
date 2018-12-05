@@ -6,6 +6,7 @@ namespace Thesis
 {
     public class Cursor : SingletonMonobehaviour<Cursor>
     {
+        public bool listenForHit = true;
         void Start()
         {
             HoloInputController.Instance.OnHit += Instance_OnHit;
@@ -15,18 +16,21 @@ namespace Thesis
 
         private void Instance_OnTargetLost(TargetLostArgs obj)
         {
-            transform.position = Camera.main.transform.position + Camera.main.transform.forward * 20.0f;
+            transform.position = Camera.main.transform.position + Camera.main.transform.forward * HoloInputController.Instance.gazeDistanceFromCamera;
         }
 
         private void Instance_OnNoTarget(NoTargetArgs obj)
         {
-            transform.position = Camera.main.transform.position + Camera.main.transform.forward * 20.0f;
+            transform.position = Camera.main.transform.position + Camera.main.transform.forward * HoloInputController.Instance.gazeDistanceFromCamera;
         }
 
         private void Instance_OnHit(RaycastHit hit)
         {
-            transform.position = hit.point;
-            transform.forward = hit.normal;
+            if(listenForHit)
+            {
+                transform.position = hit.point;
+                transform.forward = hit.normal;
+            }
         }
 
         void OnDestroy()
