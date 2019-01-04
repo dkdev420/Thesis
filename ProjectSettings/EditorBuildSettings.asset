@@ -14,7 +14,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Test/Stupid Scene.unity
     guid: 2c121d81bdcf62a4f88162c3126f058a
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Demo/Grabber Demo.unity
     guid: 79b65f07cf27be94cb9f6ab1969a9d4b
+  - enabled: 1
+    path: Assets/Scenes/Minigames/DodgeTheBall.unity
+    guid: df3f85e95c9af9348847c57ecb6a8c02
   m_configObjects: {}
