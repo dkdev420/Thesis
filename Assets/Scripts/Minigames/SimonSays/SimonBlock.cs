@@ -7,13 +7,13 @@ public class SimonBlock : MonoBehaviour
     public int note = 0;
     int transpose = -4;
     Renderer rend;
-    AudioSource audio;
+    AudioSource audioSource;
 
     void Start ()
 	{
         rend = GetComponent<Renderer>();
-        audio = GetComponent<AudioSource>();
-        audio.pitch = Mathf.Pow(2, (note + transpose) / 12.0f);
+        audioSource = GetComponent<AudioSource>();
+        audioSource.pitch = Mathf.Pow(2, (note + transpose) / 12.0f);
     }
 
     void Update ()
@@ -29,7 +29,7 @@ public class SimonBlock : MonoBehaviour
 
     IEnumerator Glow()
     {
-        audio.Play();
+        audioSource.Play();
         float glow = 6f;
         while(glow > 1f)
         {
@@ -44,7 +44,7 @@ public class SimonBlock : MonoBehaviour
             rend.material.SetFloat("_RimPower", glow);
             yield return 0;
         }
-        audio.Stop();
+        audioSource.Stop();
         yield return 0;
     }
 }

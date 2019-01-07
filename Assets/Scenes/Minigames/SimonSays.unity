@@ -1070,6 +1070,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e18ca68cf327b0f4c83be8617b221174, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dontDestroyOnLoad: 0
   blocks:
   - {fileID: 1384797557}
   - {fileID: 690872116}

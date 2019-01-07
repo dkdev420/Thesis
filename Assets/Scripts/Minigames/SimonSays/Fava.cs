@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Fava : MonoBehaviour
 {
-    AudioSource audio;
+    AudioSource @as;
     void Start()
     {
-        audio = GetComponent<AudioSource>();
+        @as = GetComponent<AudioSource>();
     }
 
     int transpose = -4;  // transpose in semitones
@@ -28,8 +28,8 @@ public class Fava : MonoBehaviour
 
         if (note >= 0)
         {
-            audio.pitch = Mathf.Pow(2, (note + transpose) / 12.0f);
-            audio.Play();
+            @as.pitch = Mathf.Pow(2, (note + transpose) / 12.0f);
+            @as.Play();
         }
     }
 }
