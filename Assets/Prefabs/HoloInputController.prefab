@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4946792439050344}
   - component: {fileID: 114340656293896454}
   m_Layer: 0
-  m_Name: InputController
+  m_Name: HoloInputController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -52,4 +52,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
-  cursor: {fileID: 0}
+  gazeDistanceFromCamera: 20

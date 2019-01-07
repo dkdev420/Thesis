@@ -16,16 +16,21 @@ public class SimonBlock : MonoBehaviour
         audioSource.pitch = Mathf.Pow(2, (note + transpose) / 12.0f);
     }
 
-    void Update ()
-	{
-    }
-
     [ContextMenu("PlaySound")]
     public void PlaySound()
     {
-        //rend.material.SetFloat("_RimPower", 1);
         StartCoroutine(Glow());
     }
+
+    public void Select()
+    {
+        if(Simon.Instance.checking)
+        {
+            Simon.Instance.toCheck.Enqueue(this);
+            StartCoroutine(Glow());
+        }
+    }
+
 
     IEnumerator Glow()
     {

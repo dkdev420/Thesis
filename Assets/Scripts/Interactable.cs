@@ -10,5 +10,11 @@ namespace Thesis
         public UnityEvent onFocus;
         public UnityEvent outFocus;
         public UnityEvent selected;
+
+        [ContextMenu("Select")]
+        public void Select()
+        {
+            if (selected != null) selected.Invoke();
+        }
     }
 }

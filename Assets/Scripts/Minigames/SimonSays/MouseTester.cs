@@ -13,7 +13,7 @@ public class MouseTester : MonoBehaviour
             if (hit)
             {
                 var s = hitInfo.collider.gameObject.GetComponent<SimonBlock>();
-                if (s) s.PlaySound();
+                if (s) s.Select();
             }
         }
     }
