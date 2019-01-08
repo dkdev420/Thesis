@@ -336,11 +336,11 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400000, guid: ef72ba8deccd01b44a52aebd70cbcfd1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ef72ba8deccd01b44a52aebd70cbcfd1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 126.4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ef72ba8deccd01b44a52aebd70cbcfd1, type: 3}
       propertyPath: m_LocalPosition.z
@@ -376,15 +376,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ef72ba8deccd01b44a52aebd70cbcfd1, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ef72ba8deccd01b44a52aebd70cbcfd1, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ef72ba8deccd01b44a52aebd70cbcfd1, type: 3}
       propertyPath: m_LocalScale.z
-      value: 2
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: ef72ba8deccd01b44a52aebd70cbcfd1, type: 3}
       propertyPath: m_IsActive
@@ -411,3 +411,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   distance: 175
   speed: 300
+--- !u!1 &1951244437 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1965359313246830, guid: b8713ee2ba4e3ae41ad7c6e50b3bfe01,
+    type: 2}
+  m_PrefabInternal: {fileID: 1505429725}
+--- !u!135 &1951244442
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1951244437}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
